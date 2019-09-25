@@ -89,7 +89,7 @@ export class AppComponent implements OnInit {
     const layer = new GraphicsLayer({ id: 'local' });
     this.userDb.forEach((item, index) => {
       const point = item.value.location.split(',');
-      const x = new Point(point[0], point[1], new SpatialReference({ wkid: 4326 }));
+      const x = new Point(parseFloat(point[0]), parseFloat(point[1]), new SpatialReference({ wkid: 4326 }));
       layer.add(new Graphic(x, pin));
     });
     this.map.addLayer(layer);
@@ -142,7 +142,6 @@ export class AppComponent implements OnInit {
     const polygonJson = {
       "rings": [[[100, 13], [100, 14], [101, 14], [101, 13]]], "spatialReference": { "wkid": 4326 }
     };
-    sym.setOutLine
     const x = new Polygon(polygonJson);
     const layer = new GraphicsLayer({ id: 'poly' });
     layer.add(new Graphic(x, sym));
@@ -154,27 +153,15 @@ export class AppComponent implements OnInit {
     const [geometryEngine] = await loadModules(['esri/geometry/geometryEngine']);
 
     const intersec = [];
-    this.map.getLayer('local').graphics.forEach(async graphic => {
-      const inThere = await geometryEngine.intersects(this.map.getLayer('poly').graphics[0].geometry, graphic.geometry);
+    this.map.getLayer('local').graphics.forEach(async (item, index) => {
+      const inThere = await geometryEngine.intersects(this.map.getLayer('poly').graphics[0].geometry, item.geometry);
       if (inThere) {
-        intersec.push(graphic.geometry);
+        intersec.push({ no: index + 1, item: item.geometry, intersect: inThere });
       }
     });
     console.log(intersec);
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
 
 // const stealth = (bodyResponse) => {
 //   return request({
