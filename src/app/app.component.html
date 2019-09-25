@@ -10,7 +10,6 @@
 <div> -->
   <!-- <input placeholder="USERNAME" class="form-control" [formControl]="user"><br><br>
   <input placeholder="LOCATION" class="form-control" [formControl]="location"><br><br> -->
-  <button mat-button (click)="stealth()" style="display: flex;justify-content: left">Line notify!</button>
   <br>
   <br>
 </div>
@@ -52,4 +51,10 @@
   <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
 </table>
 
+<div style="margin-top: 10px;
+display: flex;">
+<button mat-button (click)="stealth()" style="display: flex;justify-content: left">Line notify!</button>
+<button mat-button (click)="polygonDraw()" style="display: flex;justify-content: left">Polygon</button>
+<button mat-button (click)="compareGeo()" style="display: flex;justify-content: left">Compare</button>
+</div>
 <div style="width: 800px;height:500px; margin-left: 700px;margin-top:-100px" #eleMap></div>
