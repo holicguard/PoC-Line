@@ -1,6 +1,8 @@
 <!--The content below is only a placeholder and can be replaced.-->
-<div style="text-align:center">
-  <h1>
+<div
+  style="background-image: linear-gradient(rgba(101, 101, 228, 0.568), rgba(228, 88, 88, 0.5)),
+url(http://images2.fanpop.com/images/photos/7800000/Nature-Full-HD-Wallpaper-national-geographic-7822409-1920-1080.jpg)">
+  <h1 style="text-align: center;color: antiquewhite">
     Welcome to PoC!
   </h1>
   <!-- <img width="100" alt="Angular Logo"
@@ -12,7 +14,6 @@
   <input placeholder="LOCATION" class="form-control" [formControl]="location"><br><br> -->
   <br>
   <br>
-</div>
 <!-- <div *ngFor="let users of userDb">
   {{users.value.message}}
   <button mat-button (click)="goToC(users.value.location)">GOTO!</button>
@@ -53,8 +54,14 @@
 
 <div style="margin-top: 10px;
 display: flex;">
-<button mat-button (click)="stealth()" style="display: flex;justify-content: left">Line notify!</button>
-<button mat-button (click)="polygonDraw()" style="display: flex;justify-content: left">Polygon</button>
-<button mat-button (click)="compareGeo()" style="display: flex;justify-content: left">Compare</button>
+  <button mat-button (click)="fetchUserid()" style="display: flex;justify-content: left;background-color: #86f764;
+color: white;">Line notify!</button>
+  <button mat-button (click)="polygonExample()" style="display: flex;justify-content: left;background-color: #5076f1;
+  color: white;">Polygon</button>
+  <button mat-button (click)="compareGeo()" style="display: flex;justify-content: left;background-color: #f07ccd;
+  color: white;">Compare</button>
+  <button mat-button (click)="polygonDraw()" style="display: flex;justify-content: left;background-color: #534848;
+  color: white;">Draw</button>
 </div>
 <div style="width: 800px;height:500px; margin-left: 700px;margin-top:-100px" #eleMap></div>
+</div>

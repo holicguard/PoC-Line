@@ -4,11 +4,12 @@ import { AngularFireDatabase, AngularFireList } from 'angularfire2/database';
 import { map } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 import { loadModules, loadScript, ILoadScriptOptions } from 'esri-loader';
-import { HttpHeaders, HttpClient } from '@angular/common/http';
+import { HttpHeaders, HttpClient, HttpParams, HttpErrorResponse } from '@angular/common/http';
+import axios from 'axios';
 const option: ILoadScriptOptions = {
   url: 'https://js.arcgis.com/3.29/',
   css: 'https://js.arcgis.com/3.29/esri/css/esri.css'
-}
+};
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -18,6 +19,7 @@ export class AppComponent implements OnInit {
   displayedColumns: string[] = ['Location', 'Message', 'btn', 'fix'];
   gpLayer: any;
   map: any;
+  intersec: any[];
   constructor(private db: AngularFireDatabase, private http: HttpClient) {
     this.fbConn = this.db.list('/user');
   }
@@ -29,13 +31,15 @@ export class AppComponent implements OnInit {
   fbConn: AngularFireList<any>;
   userDb: any[];
   ngOnInit() {
+    // tslint:disable-next-line: no-string-literal
     window['zzz'] = this;
     this.fbConn.snapshotChanges().pipe(map(actions => {
       return actions.map(action => ({ key: action.key, value: action.payload.val() }));
     })).subscribe(items => {
+      this.userDb = [];
       this.userDb = items;
       if (this.map) {
-        this.map.removeLayer('local');
+        this.map.removeLayer(this.map.getLayer('local'));
       }
       this.initMap();
     });
@@ -43,7 +47,7 @@ export class AppComponent implements OnInit {
   }
   // call firebase!
   btnClick() {
-    //let dateFormat = require('dateformat');
+    // let dateFormat = require('dateformat');
     const now = new Date();
     const pushDate = now.toLocaleString('TH');
     this.db.object('/trigger/time').set(pushDate);
@@ -104,29 +108,35 @@ export class AppComponent implements OnInit {
     this.db.object('/user/' + id + '/mode').set(0);
     this.db.object('/user/' + id + '/step').set(0);
   }
-  stealth() {
-    const LINE_MESSAGING_API = 'https://api.line.me/v2/bot/message';
+
+  lineNoti(useridTarget) {
+    const target = 'http://localhost:3000/lineNoti';
     const httpOptions = {
-      headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        'Authorization': '3fOOYmIaudANxJYFCdWUtv6XsU4kJyDKgKct0X1b2Mnn0/kmLDQlqzhLvapZpYLbevCk5ZNcMZBa8CQ+JsYWNnc/dSzOjiDH1OlC8CtY9eGPlocdDw7TEyVawbLsmfEAuW80Nu0vcPxCCFeQCEH6HgdB04t89/1O/w1cDnyilFU= '
-      })
+      // params: new HttpParams().set('userid', useridTarget)
+      params: new HttpParams().set('userid', useridTarget.toString())
+
     };
-    const bodyx = JSON.stringify({
-      to: `Ud89017efa0385812ac7ea495d84a5bed`,
-      messages: [
-        {
-          type: `text`,
-          text: 'Hello'// bodyResponse.events[0].message.text
-        }
-      ]
-    });
-    this.http.get(LINE_MESSAGING_API).subscribe(res => {
-      const response = res;
+    this.http.post(target, null, httpOptions).subscribe(res => {
+      console.log(res);
     });
   }
 
-  async polygonDraw() {
+  fetchUserid() {
+    let userid = [];
+    if (this.intersec.length > 0) {
+      this.intersec.forEach(element => {
+        const x = element.item.x.toString();
+        const y = element.item.y.toString();
+        const locationfind = x + ',' + y;
+        userid = this.userDb.filter((finder) => finder.value.location === locationfind);
+        userid.forEach(fltered => {
+          this.lineNoti(fltered.key);
+        });
+      });
+    }
+  }
+
+  async polygonExample() {
     await loadScript(option);
     const [Color] = await loadModules(['esri/Color']);
     const [Polygon] = await loadModules(['esri/geometry/Polygon']);
@@ -149,33 +159,63 @@ export class AppComponent implements OnInit {
   }
 
   async compareGeo() {
+    this.intersec = [];
     await loadScript(option);
     const [geometryEngine] = await loadModules(['esri/geometry/geometryEngine']);
+    if (this.map.getLayer('freehand') !== undefined) {
+      this.map.getLayer('local').graphics.forEach(async (item, index) => {
+        const inThere = await geometryEngine.intersects(this.map.getLayer('freehand').graphics[0].geometry, item.geometry);
+        if (inThere) {
+          this.intersec.push({ no: index + 1, item: item.geometry, intersect: inThere });
+        }
+      });
+      console.log(this.intersec);
+    } else if (this.map.getLayer('poly') !== undefined) {
+      this.map.getLayer('local').graphics.forEach(async (item, index) => {
+        const inThere = await geometryEngine.intersects(this.map.getLayer('poly').graphics[0].geometry, item.geometry);
+        if (inThere) {
+          this.intersec.push({ no: index + 1, item: item.geometry, intersect: inThere });
+        }
+      });
+      console.log(this.intersec);
+    } else {
+      console.log('no polygon on map');
+    }
+  }
 
-    const intersec = [];
-    this.map.getLayer('local').graphics.forEach(async (item, index) => {
-      const inThere = await geometryEngine.intersects(this.map.getLayer('poly').graphics[0].geometry, item.geometry);
-      if (inThere) {
-        intersec.push({ no: index + 1, item: item.geometry, intersect: inThere });
-      }
-    });
-    console.log(intersec);
+  async polygonDraw() {
+    await loadScript(option);
+    const [Color] = await loadModules(['esri/Color']);
+    const [Polygon] = await loadModules(['esri/geometry/Polygon']);
+    const [GraphicsLayer] = await loadModules(['esri/layers/GraphicsLayer']);
+    const [Graphic] = await loadModules(['esri/graphic']);
+    const [Draw] = await loadModules(['esri/toolbars/draw']);
+    const [SimpleFillSymbol] = await loadModules(['esri/symbols/SimpleFillSymbol']);
+    const [SimpleLineSymbol] = await loadModules(['esri/symbols/SimpleLineSymbol']);
+    if (this.map.getLayer('freehand') !== undefined) {
+      this.map.removeLayer(this.map.getLayer('freehand'));
+    }
+    const polyDraw = new Draw(this.map);
+    polyDraw.activate(Draw.FREEHAND_POLYGON);
+    polyDraw.on('draw-complete', this.polyFreehand);
+
+  }
+
+  async polyFreehand(evt) {
+    await loadScript(option);
+    const [Color] = await loadModules(['esri/Color']);
+    const [Polygon] = await loadModules(['esri/geometry/Polygon']);
+    const [GraphicsLayer] = await loadModules(['esri/layers/GraphicsLayer']);
+    const [Graphic] = await loadModules(['esri/graphic']);
+    const [Draw] = await loadModules(['esri/toolbars/draw']);
+    const [SimpleFillSymbol] = await loadModules(['esri/symbols/SimpleFillSymbol']);
+    const [SimpleLineSymbol] = await loadModules(['esri/symbols/SimpleLineSymbol']);
+    const sym = new SimpleFillSymbol(SimpleFillSymbol.STYLE_SOLID,
+      new SimpleLineSymbol(SimpleLineSymbol.STYLE_DASHDOT,
+        new Color([255, 0, 0]), 2), new Color([255, 255, 0, 0.25])
+    );
+    const layer = new GraphicsLayer({ id: 'freehand' });
+    layer.add(new Graphic(evt.geographicGeometry, sym));
+    this.map.addLayer(layer);
   }
 }
-
-// const stealth = (bodyResponse) => {
-//   return request({
-//       method: `POST`,
-//       uri: `${LINE_MESSAGING_API}/push`,
-//       headers: LINE_HEADER,
-//       body: JSON.stringify({
-//           to: `Ud89017efa0385812ac7ea495d84a5bed`,
-//           messages: [
-//               {
-//                   type: `text`,
-//                   text: JSON.stringify(bodyResponse, null, 2)// bodyResponse.events[0].message.text
-//               }
-//           ]
-//       })
-//   });
-// };
