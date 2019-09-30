@@ -118,6 +118,7 @@ export class AppComponent implements OnInit {
       const prepare = new Graphic(point, pin);
       prepare.setInfoTemplate(imageShow);
       layer.add(prepare);
+      layer.IsAlwaysOnTop = true;
     });
     this.map.addLayer(layer);
   }
