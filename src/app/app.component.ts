@@ -2,7 +2,7 @@ import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { AngularFireDatabase, AngularFireList } from 'angularfire2/database';
 import { map } from 'rxjs/operators';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { loadModules, loadScript, ILoadScriptOptions } from 'esri-loader';
 import { HttpHeaders, HttpClient, HttpParams, HttpErrorResponse } from '@angular/common/http';
 import axios from 'axios';
@@ -51,6 +51,28 @@ export class AppComponent implements OnInit {
     const now = new Date();
     const pushDate = now.toLocaleString('TH');
     this.db.object('/trigger/time').set(pushDate);
+  }
+
+  getImage() {
+    const imageId = this.userDb[2].value.image;
+    // const target = 'https://api.line.me/v2/bot/message/' + imageId + '/content';
+    const target = 'http://localhost:3000/lineImageRequest';
+    const httpOptions = {
+      params: new HttpParams().set('imageid', imageId)
+
+    };
+    this.http.get(target, httpOptions).subscribe(res => {
+    });
+  }
+
+  lineNoti(useridTarget) {
+    const target = 'http://localhost:3000/lineNoti';
+    const httpOptions = {
+      params: new HttpParams().set('userid', useridTarget.toString())
+
+    };
+    this.http.post(target, null, httpOptions).subscribe(res => {
+    });
   }
 
   async initMap() {
@@ -107,18 +129,6 @@ export class AppComponent implements OnInit {
   firebaseChangeStatus(id) {
     this.db.object('/user/' + id + '/mode').set(0);
     this.db.object('/user/' + id + '/step').set(0);
-  }
-
-  lineNoti(useridTarget) {
-    const target = 'http://localhost:3000/lineNoti';
-    const httpOptions = {
-      // params: new HttpParams().set('userid', useridTarget)
-      params: new HttpParams().set('userid', useridTarget.toString())
-
-    };
-    this.http.post(target, null, httpOptions).subscribe(res => {
-      console.log(res);
-    });
   }
 
   fetchUserid() {
@@ -198,7 +208,6 @@ export class AppComponent implements OnInit {
     const polyDraw = new Draw(this.map);
     polyDraw.activate(Draw.FREEHAND_POLYGON);
     polyDraw.on('draw-complete', this.polyFreehand);
-
   }
 
   async polyFreehand(evt) {
@@ -210,6 +219,7 @@ export class AppComponent implements OnInit {
     const [Draw] = await loadModules(['esri/toolbars/draw']);
     const [SimpleFillSymbol] = await loadModules(['esri/symbols/SimpleFillSymbol']);
     const [SimpleLineSymbol] = await loadModules(['esri/symbols/SimpleLineSymbol']);
+
     const sym = new SimpleFillSymbol(SimpleFillSymbol.STYLE_SOLID,
       new SimpleLineSymbol(SimpleLineSymbol.STYLE_DASHDOT,
         new Color([255, 0, 0]), 2), new Color([255, 255, 0, 0.25])

@@ -1,7 +1,7 @@
 <!--The content below is only a placeholder and can be replaced.-->
 <div
-  style="background-image: linear-gradient(rgba(101, 101, 228, 0.568), rgba(228, 88, 88, 0.5)),
-url(http://images2.fanpop.com/images/photos/7800000/Nature-Full-HD-Wallpaper-national-geographic-7822409-1920-1080.jpg)">
+  style="background-image: linear-gradient(rgba(101, 101, 228, 0.99), rgba(228, 88, 88, 0.5)),
+url(http://images2.fanpop.com/images/photos/7800000/Nature-Full-HD-Wallpaper-national-geographic-7822409-1920-1080.jpg);height: 644px;">
   <h1 style="text-align: center;color: antiquewhite">
     Welcome to PoC!
   </h1>
@@ -19,15 +19,15 @@ url(http://images2.fanpop.com/images/photos/7800000/Nature-Full-HD-Wallpaper-nat
   <button mat-button (click)="goToC(users.value.location)">GOTO!</button>
   <br><br>
 </div> -->
-<table mat-table [dataSource]="userDb" class="mat-elevation-z8">
+<table style="background-color: #ffa383;" mat-table [dataSource]="userDb" class="mat-elevation-z8">
 
   <!--- Note that these columns can be defined in any order.
         The actual rendered columns are set as a property on the row definition" -->
 
   <!-- Position Column -->
   <ng-container matColumnDef="Location">
-    <th mat-header-cell *matHeaderCellDef style="text-align: center;"> Location </th>
-    <td mat-cell *matCellDef="let element"> {{element.value.location}} </td>
+    <th mat-header-cell *matHeaderCellDef style="text-align: center;"> Userid </th>
+    <td mat-cell *matCellDef="let element"> {{element.key}} </td>
   </ng-container>
   <ng-container matColumnDef="Message">
     <th mat-header-cell *matHeaderCellDef style="text-align: center;"> Message </th>
@@ -63,5 +63,5 @@ color: white;">Line notify!</button>
   <button mat-button (click)="polygonDraw()" style="display: flex;justify-content: left;background-color: #534848;
   color: white;">Draw</button>
 </div>
-<div style="width: 800px;height:500px; margin-left: 700px;margin-top:-100px" #eleMap></div>
+<div style="width: 800px;height:500px; margin-left: 700px;margin-top:-275px" #eleMap></div>
 </div>
