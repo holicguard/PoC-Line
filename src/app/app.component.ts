@@ -39,7 +39,7 @@ export class AppComponent implements OnInit {
       this.userDb = [];
       this.userDb = items;
       if (this.map) {
-        this.map.removeLayer(this.map.getLayer('local'));
+        this.map.removeLayer(this.map.getLayer('point'));
       }
       this.initMap();
     });
@@ -47,19 +47,15 @@ export class AppComponent implements OnInit {
   }
   // call firebase!
   btnClick() {
-    // let dateFormat = require('dateformat');
     const now = new Date();
     const pushDate = now.toLocaleString('TH');
     this.db.object('/trigger/time').set(pushDate);
   }
 
-  getImage() {
-    const imageId = this.userDb[2].value.image;
-    // const target = 'https://api.line.me/v2/bot/message/' + imageId + '/content';
+  getImage(imageId) {
     const target = 'http://localhost:3000/lineImageRequest';
     const httpOptions = {
       params: new HttpParams().set('imageid', imageId)
-
     };
     this.http.get(target, httpOptions).subscribe(res => {
     });
@@ -84,9 +80,7 @@ export class AppComponent implements OnInit {
     const [SimpleMarkerSymbol] = await loadModules(['esri/symbols/SimpleLineSymbol']);
     const [PictureMarkerSymbol] = await loadModules(['esri/symbols/PictureMarkerSymbol']);
     const [SpatialReference] = await loadModules(['esri/SpatialReference']);
-    const [Color] = await loadModules(['esri/Color']);
-    // const [Point] = await loadModules(['esri/geometry/Point']);
-    // const [SpatialReference] = await loadModules(['esri/geometry/SpatialReference']);
+    const [InfoTemplate] = await loadModules(['esri/InfoTemplate']);
     if (this.map === undefined) {
       this.map = new Map(this.eleMap.nativeElement, {
         basemap: 'topo',
@@ -112,11 +106,18 @@ export class AppComponent implements OnInit {
       height: 20,
       width: 20,
     });
-    const layer = new GraphicsLayer({ id: 'local' });
+    const layer = new GraphicsLayer({ id: 'point' });
     this.userDb.forEach((item, index) => {
-      const point = item.value.location.split(',');
-      const x = new Point(parseFloat(point[0]), parseFloat(point[1]), new SpatialReference({ wkid: 4326 }));
-      layer.add(new Graphic(x, pin));
+      this.getImage(item.value.image);
+      const imageShow = new InfoTemplate();
+      imageShow.setTitle(item.key);
+      // tslint:disable-next-line: max-line-length
+      imageShow.setContent('<img src=http://localhost:3000/lineImageRequest?imageid=' + item.value.image + ' alt="View" style="width:70%;height:70%"> \n Problem:' + item.value.message);
+      const split = item.value.location.split(',');
+      const point = new Point(parseFloat(split[0]), parseFloat(split[1]), new SpatialReference({ wkid: 4326 }));
+      const prepare = new Graphic(point, pin);
+      prepare.setInfoTemplate(imageShow);
+      layer.add(prepare);
     });
     this.map.addLayer(layer);
   }
@@ -152,7 +153,6 @@ export class AppComponent implements OnInit {
     const [Polygon] = await loadModules(['esri/geometry/Polygon']);
     const [GraphicsLayer] = await loadModules(['esri/layers/GraphicsLayer']);
     const [Graphic] = await loadModules(['esri/graphic']);
-    const [Draw] = await loadModules(['esri/toolbars/draw']);
     const [SimpleFillSymbol] = await loadModules(['esri/symbols/SimpleFillSymbol']);
     const [SimpleLineSymbol] = await loadModules(['esri/symbols/SimpleLineSymbol']);
     const sym = new SimpleFillSymbol(SimpleFillSymbol.STYLE_SOLID,
@@ -173,7 +173,7 @@ export class AppComponent implements OnInit {
     await loadScript(option);
     const [geometryEngine] = await loadModules(['esri/geometry/geometryEngine']);
     if (this.map.getLayer('freehand') !== undefined) {
-      this.map.getLayer('local').graphics.forEach(async (item, index) => {
+      this.map.getLayer('point').graphics.forEach(async (item, index) => {
         const inThere = await geometryEngine.intersects(this.map.getLayer('freehand').graphics[0].geometry, item.geometry);
         if (inThere) {
           this.intersec.push({ no: index + 1, item: item.geometry, intersect: inThere });
@@ -181,7 +181,7 @@ export class AppComponent implements OnInit {
       });
       console.log(this.intersec);
     } else if (this.map.getLayer('poly') !== undefined) {
-      this.map.getLayer('local').graphics.forEach(async (item, index) => {
+      this.map.getLayer('point').graphics.forEach(async (item, index) => {
         const inThere = await geometryEngine.intersects(this.map.getLayer('poly').graphics[0].geometry, item.geometry);
         if (inThere) {
           this.intersec.push({ no: index + 1, item: item.geometry, intersect: inThere });
@@ -207,10 +207,12 @@ export class AppComponent implements OnInit {
     }
     const polyDraw = new Draw(this.map);
     polyDraw.activate(Draw.FREEHAND_POLYGON);
-    polyDraw.on('draw-complete', this.polyFreehand);
+    polyDraw.on('draw-complete', (event) => {
+      this.polyFreehand(event, polyDraw);
+    });
   }
 
-  async polyFreehand(evt) {
+  async polyFreehand(evt, polyDraw) {
     await loadScript(option);
     const [Color] = await loadModules(['esri/Color']);
     const [Polygon] = await loadModules(['esri/geometry/Polygon']);
@@ -227,5 +229,6 @@ export class AppComponent implements OnInit {
     const layer = new GraphicsLayer({ id: 'freehand' });
     layer.add(new Graphic(evt.geographicGeometry, sym));
     this.map.addLayer(layer);
+    polyDraw.deactivate();
   }
 }
