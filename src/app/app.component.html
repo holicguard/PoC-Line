@@ -1,7 +1,12 @@
 <!--The content below is only a placeholder and can be replaced.-->
+
+<head>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+</head>
 <div
   style="background-image: linear-gradient(rgba(101, 101, 228, 0.99), rgba(228, 88, 88, 0.5)),
-url(http://images2.fanpop.com/images/photos/7800000/Nature-Full-HD-Wallpaper-national-geographic-7822409-1920-1080.jpg);height: 685px;">
+url(http://images2.fanpop.com/images/photos/7800000/Nature-Full-HD-Wallpaper-national-geographic-7822409-1920-1080.jpg);height: 720px;">
   <h1 style="text-align: center;color: antiquewhite">
     Welcome to PoC!
   </h1>
@@ -14,54 +19,49 @@ url(http://images2.fanpop.com/images/photos/7800000/Nature-Full-HD-Wallpaper-nat
   <input placeholder="LOCATION" class="form-control" [formControl]="location"><br><br> -->
   <br>
   <br>
-<!-- <div *ngFor="let users of userDb">
-  {{users.value.message}}
-  <button mat-button (click)="goToC(users.value.location)">GOTO!</button>
-  <br><br>
-</div> -->
-<table style="background-color: #ffa383;" mat-table [dataSource]="userDb" class="mat-elevation-z8">
-
-  <!--- Note that these columns can be defined in any order.
+  <div style="margin-bottom: 10px; margin-left: 50px;
+display: flex;">
+    <button mat-button (click)="fetchUserid()" style="display: flex;justify-content: left;background-color: #7af754;
+color: white;">Line notify!</button> &nbsp;&nbsp;
+    <button mat-button (click)="polygonExample()" style="display: flex;justify-content: left;background-color: #5076f1;
+  color: white;">Polygon</button> &nbsp;&nbsp;
+    <button mat-button (click)="compareGeo()" style="display: flex;justify-content: left;background-color: #f371cc;
+  color: white;">Compare</button> &nbsp;&nbsp;
+    <button mat-button (click)="polygonDraw()" style="display: flex;justify-content: left;background-color: #534848;
+  color: white;">Draw</button>
+  </div>
+  <table style="width: 45%" mat-table [dataSource]="userDb" class="table table-striped table-dark">
+    <!-- style="background-color: #f3ab93;"  -->
+    <!--- Note that these columns can be defined in any order.
         The actual rendered columns are set as a property on the row definition" -->
 
-  <!-- Position Column -->
-  <ng-container matColumnDef="Location">
-    <th mat-header-cell *matHeaderCellDef style="text-align: center;"> Userid </th>
-    <td mat-cell *matCellDef="let element"> {{element.key}} </td>
-  </ng-container>
-  <ng-container matColumnDef="Message">
-    <th mat-header-cell *matHeaderCellDef style="text-align: center;"> Message </th>
-    <td mat-cell *matCellDef="let element"> {{element.value.message}} </td>
-  </ng-container>
-  <ng-container matColumnDef="btn">
-    <th mat-header-cell *matHeaderCellDef style="text-align: center;"> Go! </th>
-    <td mat-cell *matCellDef="let element"> <button mat-button style="background-color: #f44c4c;
+    <!-- Position Column -->
+    <ng-container matColumnDef="Location">
+      <th mat-header-cell *matHeaderCellDef style="text-align: center;"> Userid </th>
+      <td mat-cell *matCellDef="let element" style="color:rgb(105, 184, 248);font-weight: bold;"> {{element.key}} </td>
+    </ng-container>
+    <ng-container matColumnDef="Message">
+      <th mat-header-cell *matHeaderCellDef style="text-align: center;"> Message </th>
+      <td mat-cell *matCellDef="let element" style="color:rgb(252, 82, 105);font-weight: bold;">
+        {{element.value.message}} </td>
+    </ng-container>
+    <ng-container matColumnDef="btn">
+      <th mat-header-cell *matHeaderCellDef style="text-align: center;"> Location </th>
+      <td mat-cell *matCellDef="let element"> <button mat-button style="background-color: #f44c4c;
       color: white;" (click)="goToC(element.value.location)">View!</button></td>
-  </ng-container>
-  <ng-container matColumnDef="fix">
-    <th mat-header-cell *matHeaderCellDef style="text-align: center;"> Solve </th>
-    <td mat-cell *matCellDef="let element">
-      <div [hidden]="element.value.mode===0?true:false">
-        <button mat-button style="background-color: #79ee5d;
+    </ng-container>
+    <ng-container matColumnDef="fix">
+      <th mat-header-cell *matHeaderCellDef style="text-align: center;"> Solve </th>
+      <td mat-cell *matCellDef="let element">
+        <div [hidden]="element.value.mode===0?true:false">
+          <button mat-button style="background-color: #79ee5d;
       color: white;" (click)="firebaseChangeStatus(element.key)">Fix!</button>
-      </div>
-    </td>
-  </ng-container>
+        </div>
+      </td>
+    </ng-container>
 
-  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-  <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-</table>
-
-<div style="margin-top: 10px;
-display: flex;">
-  <button mat-button (click)="fetchUserid()" style="display: flex;justify-content: left;background-color: #86f764;
-color: white;">Line notify!</button>
-  <button mat-button (click)="polygonExample()" style="display: flex;justify-content: left;background-color: #5076f1;
-  color: white;">Polygon</button>
-  <button mat-button (click)="compareGeo()" style="display: flex;justify-content: left;background-color: #f07ccd;
-  color: white;">Compare</button>
-  <button mat-button (click)="polygonDraw()" style="display: flex;justify-content: left;background-color: #534848;
-  color: white;">Draw</button>
-</div>
-<div style="width: 800px;height:500px; margin-left: 700px;margin-top:-275px" #eleMap></div>
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  </table>
+  <div style="width: 800px;height:500px; margin-left: 700px;margin-top:-315px" #eleMap></div>
 </div>

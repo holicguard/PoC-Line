@@ -112,7 +112,7 @@ export class AppComponent implements OnInit {
       const imageShow = new InfoTemplate();
       imageShow.setTitle(item.key);
       // tslint:disable-next-line: max-line-length
-      imageShow.setContent('<img src=http://localhost:3000/lineImageRequest?imageid=' + item.value.image + ' alt="View" style="width:70%;height:70%"> \n Problem:' + item.value.message);
+      imageShow.setContent('<img src=http://localhost:3000/lineImageRequest?imageid=' + item.value.image + ' alt="View" style="width:70%;height:70%"> \n  Problem:' + item.value.message);
       const split = item.value.location.split(',');
       const point = new Point(parseFloat(split[0]), parseFloat(split[1]), new SpatialReference({ wkid: 4326 }));
       const prepare = new Graphic(point, pin);
@@ -130,7 +130,6 @@ export class AppComponent implements OnInit {
 
   firebaseChangeStatus(id) {
     this.db.object('/user/' + id + '/mode').set(0);
-    this.db.object('/user/' + id + '/step').set(0);
   }
 
   fetchUserid() {
