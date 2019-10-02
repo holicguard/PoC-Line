@@ -100,19 +100,12 @@ export class AppComponent implements OnInit {
         style: 'esriSLSSolid'
       }
     });
-    //https://cdn0.iconfinder.com/data/icons/maps-and-navigation-1-1/52/43-512.png
-    //https://i.dlpng.com/static/png/402008_preview.png
     const pin = new PictureMarkerSymbol({
-      url: 'https://i.dlpng.com/static/png/402008_preview.png',
-      height: 20,
-      width: 20,
+      url: 'https://img.icons8.com/doodle/96/000000/marker--v5.png',
+      height: 25,
+      width: 25,
     });
 
-    const pinFocus = new PictureMarkerSymbol({
-      url: 'https://i.dlpng.com/static/png/402008_preview.png',
-      height: 40,
-      width: 40,
-    });
     const layer = new GraphicsLayer({ id: 'point' });
     this.userDb.forEach((item, index) => {
       this.getImage(item.value.image);
@@ -141,20 +134,19 @@ export class AppComponent implements OnInit {
     const [SpatialReference] = await loadModules(['esri/SpatialReference']);
     const [InfoTemplate] = await loadModules(['esri/InfoTemplate']);
     const pinFocus = new PictureMarkerSymbol({
-      url: 'https://i.dlpng.com/static/png/402008_preview.png',
+      url: 'https://img.icons8.com/doodle/96/000000/marker--v5.png',
       height: 40,
       width: 40,
     });
     const layer = new GraphicsLayer({ id: 'pointFocus' });
     this.userDb.forEach((item, index) => {
-      // this.getImage(item.value.image);
-      const imageShow = new InfoTemplate();
-      imageShow.setTitle('รายงานปัญหา');
-      // tslint:disable-next-line: max-line-length
-      imageShow.setContent('<img src=http://localhost:3000/lineImageRequest?imageid=' + item.value.image + ' alt="View" style="width:70%;height:70%"> <br> UserId:' + item.key + ' <br>  Problem:' + item.value.message);
-      const split = item.value.location.split(',');
-      const point = new Point(parseFloat(split[0]), parseFloat(split[1]), new SpatialReference({ wkid: 4326 }));
       if (item.value.location === focus) {
+        const imageShow = new InfoTemplate();
+        imageShow.setTitle('รายงานปัญหา');
+        // tslint:disable-next-line: max-line-length
+        imageShow.setContent('<img src=http://localhost:3000/lineImageRequest?imageid=' + item.value.image + ' alt="View" style="width:70%;height:70%"> <br> UserId:' + item.key + ' <br>  Problem:' + item.value.message);
+        const split = item.value.location.split(',');
+        const point = new Point(parseFloat(split[0]), parseFloat(split[1]), new SpatialReference({ wkid: 4326 }));
         const prepare = new Graphic(point, pinFocus);
         prepare.setInfoTemplate(imageShow);
         layer.add(prepare);
@@ -167,7 +159,7 @@ export class AppComponent implements OnInit {
 
   outFocus() {
     this.map.removeLayer(this.map.getLayer('pointFocus'));
-    this.map.setZoom(9);
+    //this.map.setZoom(9);
   }
 
 
@@ -273,5 +265,6 @@ export class AppComponent implements OnInit {
     layer.add(new Graphic(evt.geographicGeometry, sym));
     this.map.addLayer(layer);
     polyDraw.deactivate();
+    this.compareGeo();
   }
 }
