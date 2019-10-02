@@ -6,7 +6,7 @@
 </head>
 <div
   style="background-image: linear-gradient(rgba(101, 101, 228, 0.99), rgba(228, 88, 88, 0.5)),
-url(http://images2.fanpop.com/images/photos/7800000/Nature-Full-HD-Wallpaper-national-geographic-7822409-1920-1080.jpg);height: 720px;">
+url(http://images2.fanpop.com/images/photos/7800000/Nature-Full-HD-Wallpaper-national-geographic-7822409-1920-1080.jpg);height: 722px;">
   <h1 style="text-align: center;color: antiquewhite">
     Welcome to PoC!
   </h1>
@@ -48,7 +48,7 @@ color: white;">Line notify!</button> &nbsp;&nbsp;
     <ng-container matColumnDef="btn">
       <th mat-header-cell *matHeaderCellDef style="text-align: center;"> Location </th>
       <td mat-cell *matCellDef="let element"> <button mat-button style="background-color: #f44c4c;
-      color: white;" (click)="goToC(element.value.location)">View!</button></td>
+      color: white;" (mouseenter)="goToC(element.value.location)" (mouseleave)="outFocus()">View!</button></td>
     </ng-container>
     <ng-container matColumnDef="fix">
       <th mat-header-cell *matHeaderCellDef style="text-align: center;"> Solve </th>
@@ -63,5 +63,5 @@ color: white;">Line notify!</button> &nbsp;&nbsp;
     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
     <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
   </table>
-  <div style="width: 800px;height:500px; margin-left: 700px;margin-top:-315px" #eleMap></div>
+  <div style="width: 800px;height:550px; margin-left: 700px;margin-top:-315px" #eleMap></div>
 </div>

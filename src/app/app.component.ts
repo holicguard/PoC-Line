@@ -100,19 +100,26 @@ export class AppComponent implements OnInit {
         style: 'esriSLSSolid'
       }
     });
-
+    //https://cdn0.iconfinder.com/data/icons/maps-and-navigation-1-1/52/43-512.png
+    //https://i.dlpng.com/static/png/402008_preview.png
     const pin = new PictureMarkerSymbol({
-      url: 'https://cdn0.iconfinder.com/data/icons/maps-and-navigation-1-1/52/43-512.png',
+      url: 'https://i.dlpng.com/static/png/402008_preview.png',
       height: 20,
       width: 20,
+    });
+
+    const pinFocus = new PictureMarkerSymbol({
+      url: 'https://i.dlpng.com/static/png/402008_preview.png',
+      height: 40,
+      width: 40,
     });
     const layer = new GraphicsLayer({ id: 'point' });
     this.userDb.forEach((item, index) => {
       this.getImage(item.value.image);
       const imageShow = new InfoTemplate();
-      imageShow.setTitle(item.key);
+      imageShow.setTitle('รายงานปัญหา');
       // tslint:disable-next-line: max-line-length
-      imageShow.setContent('<img src=http://localhost:3000/lineImageRequest?imageid=' + item.value.image + ' alt="View" style="width:70%;height:70%"> \n  Problem:' + item.value.message);
+      imageShow.setContent('<img src=http://localhost:3000/lineImageRequest?imageid=' + item.value.image + ' alt="View" style="width:70%;height:70%"> <br> UserId:' + item.key + ' <br>  Problem:' + item.value.message);
       const split = item.value.location.split(',');
       const point = new Point(parseFloat(split[0]), parseFloat(split[1]), new SpatialReference({ wkid: 4326 }));
       const prepare = new Graphic(point, pin);
@@ -123,10 +130,46 @@ export class AppComponent implements OnInit {
     this.map.addLayer(layer);
   }
 
-  goToC(point) {
-    point = point.split(',');
-    this.map.centerAt([point[0], point[1]]);
+  async goToC(focus) {
+    await loadScript(option);
+    const [Map] = await loadModules(['esri/map']);
+    const [Point] = await loadModules(['esri/geometry/Point']);
+    const [GraphicsLayer] = await loadModules(['esri/layers/GraphicsLayer']);
+    const [Graphic] = await loadModules(['esri/graphic']);
+    const [SimpleMarkerSymbol] = await loadModules(['esri/symbols/SimpleLineSymbol']);
+    const [PictureMarkerSymbol] = await loadModules(['esri/symbols/PictureMarkerSymbol']);
+    const [SpatialReference] = await loadModules(['esri/SpatialReference']);
+    const [InfoTemplate] = await loadModules(['esri/InfoTemplate']);
+    const pinFocus = new PictureMarkerSymbol({
+      url: 'https://i.dlpng.com/static/png/402008_preview.png',
+      height: 40,
+      width: 40,
+    });
+    const layer = new GraphicsLayer({ id: 'pointFocus' });
+    this.userDb.forEach((item, index) => {
+      // this.getImage(item.value.image);
+      const imageShow = new InfoTemplate();
+      imageShow.setTitle('รายงานปัญหา');
+      // tslint:disable-next-line: max-line-length
+      imageShow.setContent('<img src=http://localhost:3000/lineImageRequest?imageid=' + item.value.image + ' alt="View" style="width:70%;height:70%"> <br> UserId:' + item.key + ' <br>  Problem:' + item.value.message);
+      const split = item.value.location.split(',');
+      const point = new Point(parseFloat(split[0]), parseFloat(split[1]), new SpatialReference({ wkid: 4326 }));
+      if (item.value.location === focus) {
+        const prepare = new Graphic(point, pinFocus);
+        prepare.setInfoTemplate(imageShow);
+        layer.add(prepare);
+      }
+    });
+    this.map.addLayer(layer);
+    focus = focus.split(',');
+    this.map.centerAndZoom([focus[0], focus[1]], 10);
   }
+
+  outFocus() {
+    this.map.removeLayer(this.map.getLayer('pointFocus'));
+    this.map.setZoom(9);
+  }
+
 
   firebaseChangeStatus(id) {
     this.db.object('/user/' + id + '/mode').set(0);
